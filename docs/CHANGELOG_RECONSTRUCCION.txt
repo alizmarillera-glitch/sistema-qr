@@ -1,0 +1,73 @@
+RECONSTRUCCION SISTEMA_QR_V3
+
+1. BASE DE DATOS
+- Se cambia el destino de tesis_qr a instalacion_limpia.
+- Se elimina del SQL la instrucción destructiva DROP DATABASE.
+- Se unifican los nombres de las tablas y columnas que usa el programa.
+- El historial de movimientos utiliza id_movimiento y fecha_hora.
+- Se mantienen existencias, movimientos_inventario y tasa_factura como tablas complementarias necesarias para la operación.
+- Se agregan campos de trazabilidad y datos extendidos sin quitar los campos técnicos actuales.
+- stock_actual se mantiene sincronizado con existencias mediante triggers.
+- La inicialización ya no renombra tablas ni intenta migrar datos de otra base.
+
+2. CONEXIÓN Y OPERACIONES
+- Configuración MySQL local predeterminada para XAMPP.
+- Configuración opcional por variables de entorno.
+- Cierre seguro de cursores y conexiones al ejecutar consultas.
+- Inicialización protegida con rollback y cierre garantizado.
+
+3. INTERFAZ
+- Paleta renovada y mayor contraste visual.
+- Más espacio en campos, botones, tablas y encabezados.
+- Tablas con filas más altas y encabezados más claros.
+- Ventana principal más amplia y adaptable al tamaño de pantalla.
+- Ventana de acceso centrada y redimensionable.
+
+4. VALIDACIÓN
+- Compilación estática de todos los módulos Python completada correctamente.
+- No se pudo ejecutar una prueba de integración real contra MySQL en este entorno: no hay servidor MySQL/XAMPP ni el controlador mysql-connector-python instalado aquí.
+- La prueba final de conexión, cámara, BCV e impresión debe realizarse en el equipo de instalación.
+
+5. REDISEÑO VISUAL INTEGRAL (2026-11-15)
+- Se incorpora una pantalla inicial tipo dashboard con bienvenida y accesos directos según rol.
+- Se renueva la estructura principal con cabecera clara, navegación lateral oscura y perfil de sesión.
+- Se actualiza la paleta, tipografía, espaciado, tablas, campos y botones de toda la aplicación.
+- Se conserva Tkinter para evitar una migración de framework que pusiera en riesgo los flujos existentes,
+  la integración con MySQL, la cámara, la generación de QR y la impresión.
+- Se mantienen las pantallas y operaciones funcionales existentes; la nueva pantalla inicial no altera
+  las reglas de permisos de Administrador, Inventario y Cajero.
+- Validación estática: todos los módulos Python compilan correctamente con py_compile.
+
+6. CORRECCIÓN DE PRECIOS USD/Bs., TASA BCV Y FACTURACIÓN (2026-11-16)
+- Tasa BCV: se consulta al iniciar (antes solo al abrir «Ventas») y en segundo plano, sin congelar la ventana. Si la consulta
+  falla se muestra la última tasa guardada y se puede ingresar manualmente. Todas las pantallas se redibujan al cambiar la tasa.
+- Lector de la tasa reescrito: tolera el certificado SSL del BCV, lee decimales largos (36,50230000) y la fecha valor, y usa
+  cuatro fuentes en orden (bcv.org.ve, ve.dolarapi.com, pydolarve.org, bcv.today). El error indica qué falló en cada una.
+- Inventario: columnas separadas «Precio USD» y «Precio Bs.» (antes dependía de haber visitado Ventas). Ficha del pistón y
+  ficha al escanear el QR ahora muestran el precio. Pistones sin precio se avisan y no se pueden agregar a una venta.
+- Actualizar precio: muestra el equivalente en Bs. mientras se escribe.
+- Orden de venta y totales: USD y Bs. siempre juntos; importes con Decimal (sin errores de redondeo de float).
+- Pagos: ahora admiten USD y Bs. (mixtos), con equivalente y saldo en ambas monedas; se guarda moneda y tasa_aplicada.
+- Factura: se emite con la misma tasa que se vio al cobrar; guarda tasa y totales Bs. también en facturas; el texto muestra
+  precio unitario, importe, subtotal, IVA y total en USD y Bs., y los pagos con su moneda.
+- Facturación: la lista muestra Subtotal USD, Total USD, Total Bs. y Tasa. Número de factura asignado desde el id (sin choques).
+- Clientes nuevos ahora guardan su codigo_cliente (antes quedaba vacío).
+- Módulos que llamaban funciones inexistentes (db.transaccion, db.autenticar_usuario, tabla TASAS_BCV, estado de QR numérico)
+  ahora funcionan: ventas_repo, pagos_repo, inventario_repo, pistones_repo, tasas_repo, pagos_ui, verificar_esquema.
+- Mensajes de error que mostraban «\n» literal ahora tienen saltos de línea reales.
+- Botón «Eliminar» agregado en Inventario (solo administrador; ya existía la función pero sin botón).
+- SQL: se agrega la tabla tasas_bcv. Se elimina de conexion.py el código de migración que ya no se usaba.
+
+7. REDISEÑO DE INTERFAZ CON CUSTOMTKINTER (2026-11-17)
+- Se cambia el framework visual de Tkinter/ttk a CustomTkinter (nueva dependencia: customtkinter>=5.2.2).
+  Instalar con: py -m pip install -r requirements.txt
+- Login: dos paneles (marca con degradado + formulario), botón Mostrar/Ocultar contraseña, errores en línea.
+- Ventana principal: barra lateral con navegación en píldoras y tarjeta de sesión, barra superior con título
+  y chip de la tasa BCV (↻ y Manual), tarjetas redondeadas, tablas con filas alternadas.
+- Resumen: indicadores (referencias, unidades, stock bajo, desactivados) y accesos rápidos.
+- Modo claro / oscuro (interruptor en login y barra lateral; se recuerda en sistema/preferencias.json).
+- Avisos: los mensajes de éxito son «toasts» no bloqueantes; advertencias, errores y confirmaciones son diálogos propios.
+- Ventas: totales USD/Bs. en columnas; Existencias: el ajuste físico precarga el stock del pistón elegido.
+- Nuevos módulos: sistema/estilos.py (paleta y tablas) y sistema/ui.py (componentes).
+- La lógica de negocio, base de datos, QR, cámara, tasa BCV y facturación NO se modificó.
+- pagos_ui.py no se usa desde hace tiempo y quedó sin cambios.

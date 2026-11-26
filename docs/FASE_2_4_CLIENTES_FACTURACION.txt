@@ -1,0 +1,22 @@
+FASE 2.4 - CLIENTES Y FACTURACION
+=================================
+
+Cambios:
+- Se incorpora sistema/ventas_repo.py para separar operaciones de clientes y facturas.
+- La búsqueda y registro de clientes usa CLIENTES:
+  id_cliente, tipo_documento, documento, nombre_razon_social, direccion, telefono,
+  correo y codigo_cliente.
+- La emisión de factura usa FACTURAS y DETALLE_FACTURA del nuevo esquema.
+- La salida de inventario asociada a la venta se registra en MOVIMIENTOS_INVENTARIO.
+- La factura almacena tasa BCV y equivalentes en bolívares.
+- Se crea un registro PAGO pendiente al emitir la factura.
+- La tasa consultada se conserva en TASAS_BCV.
+- El listado y consulta de facturas utiliza los nombres reales del nuevo modelo.
+
+IMPORTANTE:
+- No importar SQL todavía ni borrar bases de datos.
+- Esta entrega se ha validado mediante compilación/sintaxis Python.
+- No se ha ejecutado contra un servidor MySQL real en este entorno.
+- Antes de ejecutar la interfaz, la base tesis_qr_v2 debe tener instalado el esquema
+  corregido y completo. La corrección final de SQL se realizará después de esta fase.
+- La consulta de tasa BCV requiere Internet al momento de emitir la factura.

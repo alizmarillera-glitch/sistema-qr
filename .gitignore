@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+.idea/
+.vscode/
+
+# Salidas generadas por el programa (se crean solas al usarlo)
+etiquetas_generadas/
+qrs_generados/
+imagenes_pistones/
+facturas/
+pruebas/salida_pdf/
+
+# Datos reales: nunca al repositorio
+*.sql.bak
+*.dump

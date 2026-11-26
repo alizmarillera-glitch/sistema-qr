@@ -1,0 +1,76 @@
+SISTEMA QR - MANUFACTURAS DE ALUMINIO I, C.A.
+VERSIÓN RECONSTRUIDA SOBRE LA BASE instalacion_limpia
+
+INSTALACIÓN
+1. Descomprima el proyecto en una carpeta local.
+2. En XAMPP, encienda MySQL. Apache solo es necesario si utiliza phpMyAdmin.
+3. Abra una terminal en la carpeta Sistema_QR_V3.
+4. Instale las dependencias: py -m pip install -r requirements.txt  (incluye customtkinter)
+5. Ejecute base_de_datos/instalacion_limpia.sql desde phpMyAdmin > Importar, o permita que
+   el programa cree la base y sus tablas al iniciarse.
+6. Abra una terminal dentro de Sistema_QR_V3/sistema y ejecute: py main_gui.py
+
+BASE DE DATOS
+- Nombre único de destino: instalacion_limpia.
+- El programa ya no se conecta a tesis_qr.
+- El SQL no elimina bases de datos y no toca tesis_qr ni tesis_qr_v2.
+- La aplicación crea las tablas que falten al iniciar.
+- existencias mantiene el stock físico separado del número técnico de piezas; stock_actual se sincroniza automáticamente.
+- movimientos_inventario registra aperturas, entradas, salidas, ajustes y ventas.
+- tasa_factura conserva la tasa BCV y los equivalentes históricos en bolívares.
+
+USUARIOS INICIALES
+- Administrador: admin / admin123
+- Cajero: cajero / cajero123
+Cambie ambas contraseñas después del primer acceso.
+
+ROLES
+- Administrador: acceso completo, usuarios, producción, precios y administración de pistones.
+  (Inventario es un módulo del sistema; ya no existe un rol Inventario.)
+- Cajero: Resumen general, Inventario (solo consulta), Ventas y Facturación. El resto muestra «Acceso denegado».
+- CONTROL: responsable de UNA de las nueve etapas de producción (ver docs/CAMBIOS_HISTORIAL_Y_ROL_CONTROL.md). Ve el Resumen
+  y Existencias; no entra a Registrar pistón, Inventario, Ventas, Facturación ni Usuarios.
+
+FUNCIONES
+- Registro y ficha técnica de pistones.
+- Generación de QR y etiquetas imprimibles.
+- Escaneo de QR mediante cámara.
+- Inventario y existencias con trazabilidad. Existencias es un seguimiento de producción por lotes (ver docs/CAMBIOS_EXISTENCIAS_LOTES.md): el stock sube al liberar un lote y baja con las ventas; ya no hay entradas, salidas ni ajustes manuales.
+- Historial de precios de venta.
+- Clientes por tipo y número de documento.
+- Ventas, IVA, facturas y pagos mixtos.
+- Tasa BCV visible en la barra superior de TODAS las pantallas. Se carga al abrir el programa (primero la última guardada,
+  luego la consulta en línea en segundo plano) y se actualiza sola cada 30 minutos.
+  Botón «↻ Tasa»: consulta de nuevo. Botón «Manual»: permite escribir la tasa publicada en bcv.org.ve si no hay internet
+  o el sitio no responde. Cada tasa queda en el historial (tabla tasas_bcv).
+- Todos los precios se muestran en USD y en Bs. (inventario, ficha del pistón, escaneo QR, orden de venta, pagos y facturas).
+- Pagos mixtos: cada pago se registra en la moneda realmente recibida (USD o Bs.) y guarda la tasa aplicada.
+- La factura conserva la tasa usada y sus importes en USD y Bs.; las facturas antiguas sin tasa se muestran como «Histórica».
+- Registro de actividad de usuarios.
+
+CONFIGURACIÓN MYSQL OPCIONAL
+La configuración predeterminada es XAMPP local (localhost:3306, usuario root, contraseña vacía).
+Puede configurar variables de entorno antes de iniciar:
+- SISTEMA_QR_DB_HOST
+- SISTEMA_QR_DB_PORT
+- SISTEMA_QR_DB_USER
+- SISTEMA_QR_DB_PASSWORD
+
+IMPORTANTE
+La validación realizada en esta entrega cubre sintaxis Python, nombres no definidos, pruebas de la lógica de dinero,
+del lector de la tasa (con ejemplos de la página del BCV y de APIs) y de la emisión de facturas con una base simulada.
+La conexión real con MySQL, el acceso a cámara, la consulta en línea de la tasa BCV y la impresión
+deben probarse en el equipo donde se ejecutará el sistema, con XAMPP y los dispositivos disponibles.
+
+REFINAMIENTO (última fase)
+Vea docs/CAMBIOS_FASE_REFINAMIENTO.md: aviso de usuario desactivado, ficha del QR con desplazamiento e iconos estilo Lucide (sistema/iconos.py).
+No se requieren dependencias nuevas (los iconos se dibujan con Pillow).
+
+REDISEÑO «PANEL INDUSTRIAL» (todas las pantallas)
+- El programa abre en modo oscuro por defecto (el interruptor «Modo oscuro» de la barra lateral conserva el modo claro).
+- sistema/estilos.py: nueva paleta (azul casi negro, tarjetas con borde azul, acento azul eléctrico). Todas las pantallas
+  (inventario, existencias, ventas, facturación, usuarios, diálogos y tablas) la heredan.
+- sistema/panel_ui.py: barra lateral (logo, menú, modo oscuro, tarjeta de sesión), cabecera (fecha actual y tasa BCV) y
+  «Resumen general» con indicadores, ventas recientes (7/14/30 días), pistón más vendido, accesos rápidos y estado del inventario.
+- sistema/panel_graficos.py: dibujo de las tarjetas con curva, el gráfico de líneas y la dona (solo Pillow, sin dependencias nuevas).
+- sistema/login_visual.py + recursos/login_fondo.png: pantalla de acceso.
